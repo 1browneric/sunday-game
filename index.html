@@ -118,6 +118,19 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .stmini:active{transform:scale(.94)}
 .sttot{font-family:var(--mono);font-size:9.5px;color:#7E8A76;margin-top:7px;letter-spacing:.04em}
 
+/* strategy tab + pin read */
+.strat{padding:2px 2px}
+.stratsec{padding:10px 6px;border-bottom:1px solid rgba(34,48,31,.12)}
+.stratsec:last-child{border-bottom:none}
+.stratlbl{font-family:var(--mono);font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:#7E8A76;margin-bottom:6px}
+.stratrow{font-family:'Barlow',sans-serif;font-size:13.5px;color:#22301F;line-height:1.5;padding:3px 0}
+.stratrow b{color:#17402A;font-weight:700}
+.stratrow.warn{color:#B0432E}
+.stratrow.warn b{color:#B0432E}
+.pintip{font-family:'Barlow',sans-serif;font-size:12.5px;color:#22301F;line-height:1.5;
+  background:#EDE6D0;border-left:3px solid var(--gold-deep);border-radius:8px;padding:9px 11px;margin-top:9px}
+.pintip b{color:#17402A}
+
 /* fullscreen zoom overlay */
 .zoom{position:fixed;inset:0;z-index:50;background:rgba(10,24,16,.97);display:flex;flex-direction:column;
   max-width:520px;margin:0 auto}
@@ -360,6 +373,84 @@ function targetFor(holeN){
   return { x: p.x + (cx - p.x)*0.45, y: p.y + (cy - p.y)*0.45 };
 }
 
+/* ---------- tour-caddie intel + live pin read ---------- */
+/* Sunflower Hills tour-caddie intel, read off the Par The Course books */
+const HOLE_INTEL = {
+  1:{tee:"PTC plan: Driver, ~140 in.", avoid:"Bunkers scatter right off the tee; water sits short-left of the green.", note:"Miss right of the green, never long-left. Green runs off the front."},
+  2:{tee:"Driver then a wedge — reachable in two only if you flush it.", avoid:"Bunkers both sides; water long-left of the green.", note:"Big green tilts hard back-right to left — stay below the shelf."},
+  3:{tee:"Driver, ~138 in.", avoid:"Bunker complex right; water off the tee bottom-left.", note:"Center green — the front-left is the low side."},
+  4:{tee:"One club, PTC: 9i. Par 3.", avoid:"Water runs the ENTIRE right side. Bunkers left are the safe miss.", note:"Miss left, never right. Green sits above its front."},
+  5:{tee:"Short par 4, downwind — Driver then wedge (~76 in).", avoid:"Fairway bunkers pinch the landing.", note:"Aggressive line rewarded, but commit — small green, favor low front-left."},
+  6:{tee:"HCP 1, the hardest hole. Three-shot it: Driver, 9i, 56.", avoid:"Bunkers everywhere both sides; water long-left. Take your medicine.", note:"Par is a win here — don't force the second."},
+  7:{tee:"Mini Driver off the tee, NOT Driver — too tight for the big stick.", avoid:"Bunkers pinch both sides of the landing zone.", note:"Position over power; 9i in from the short grass."},
+  8:{tee:"Long par 3, PTC: 6i (~196).", avoid:"Bunkers left and right; sand short-right is the worst miss.", note:"Center of the green — anywhere but short-right."},
+  9:{tee:"Short par 4 — LAY BACK. Driver brings the trouble in.", avoid:"Bunkers pinch the driver landing zone.", note:"Iron off the tee then a wedge takes the big number out of play."},
+  10:{tee:"Easiest hole (HCP 18) — Driver then a wedge (~46 in).", avoid:"Water right near the green; bunker left.", note:"Attack. Pin sits up back-left — be below it."},
+  11:{tee:"Driver, mid-iron in (~161).", avoid:"Scattered bunkers; sand/water bottom-left.", note:"Straightaway — take on the second from the fairway."},
+  12:{tee:"Driver, wedge in (~123).", avoid:"Long and straight, bunkers both sides.", note:"The fairway is the whole game — center green."},
+  13:{tee:"Par 3 over water, PTC: 9i (~162). CARRY IT.", avoid:"Pond short and left — short is wet.", note:"Take enough club; miss long, never short."},
+  14:{tee:"Driver, wedge in (~135).", avoid:"Water down the ENTIRE left side. Miss right.", note:"Green sits tight to the water — bail right of the flag."},
+  15:{tee:"HCP 2, long par 4. Driver + iron, or lay it up.", avoid:"Water bottom-left; bunkers guard the fairway.", note:"Long hole — bogey is fine; play the fat side."},
+  16:{tee:"Long par 3, PTC: 7i (~195).", avoid:"Water all down the right; bunkers left, sand short-right.", note:"Miss left, never right. Big club, smooth swing."},
+  17:{tee:"Par 5 — position off the tee, then pick your spot.", avoid:"Water left of the landing and crossing; bunkers.", note:"Find the fairway — the green gives up birdies."},
+  18:{tee:"Short finish — Driver then a wedge (~62 in).", avoid:"Pond guards the left-front of the green; bunkers right.", note:"Favor the right side, wedge in — don't flirt with the water."}
+};
+const GREEN_SLOPES = {"1":{"high":"back","low":"front"},"2":{"high":"back right","low":"left"},"3":{"high":"back","low":"front left"},"4":{"high":"back left","low":"front"},"5":{"high":"back right","low":"front left"},"6":{"high":"back left","low":"mid"},"7":{"high":"back left","low":"right"},"8":{"high":"back","low":"front"},"9":{"high":"back","low":"front"},"10":{"high":"back","low":"front"},"11":{"high":"back","low":"front"},"12":{"high":"back","low":"front"},"13":{"high":"back","low":"front right"},"14":{"high":"back","low":"front"},"15":{"high":"back","low":"front"},"16":{"high":"back","low":"front right"},"17":{"high":"back","low":"front"},"18":{"high":"back","low":"front"}};
+
+/* green pin read: sample the elevation heatmap at the pin (red=high, blue=low) */
+const _greenImgCache = {};
+function sampleGreen(holeN, x, y){
+  const meta = BOOK[holeN];
+  if (!meta) return null;
+  let ctx = _greenImgCache[holeN];
+  if (!ctx){
+    const img = _greenImgCache["_img_"+holeN];
+    if (!img || !img.complete || !img.naturalWidth) return null;
+    const cv = document.createElement("canvas");
+    cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+    ctx = cv.getContext("2d", { willReadFrequently:true });
+    ctx.drawImage(img, 0, 0);
+    _greenImgCache[holeN] = ctx;
+  }
+  try {
+    const W = ctx.canvas.width, H = ctx.canvas.height, rad = Math.max(3, Math.round(W*0.03));
+    const px = Math.round(x*W), py = Math.round(y*H);
+    const d = ctx.getImageData(Math.max(0,px-rad), Math.max(0,py-rad), rad*2, rad*2).data;
+    let r=0,g=0,b=0,n=0;
+    for (let i=0;i<d.length;i+=4){ if (d[i+3]<10) continue; r+=d[i]; g+=d[i+1]; b+=d[i+2]; n++; }
+    return n ? { r:r/n, g:g/n, b:b/n } : null;
+  } catch(e){ return null; }
+}
+function pinAdvice(holeN){
+  const p = pins[holeN];
+  if (!p) return null;
+  const col = sampleGreen(holeN, p.x, p.y);
+  const front = p.y > 0.60, back = p.y < 0.40;
+  const parts = [];
+  if (col){
+    const high = col.r > col.b + 22 && col.r > 140;
+    const low  = col.b > col.r + 18 && col.b > 130;
+    if (high) parts.push("Pin's on the <b>high shelf</b> — downhill, slick putts. Leave it <b>below the hole</b> and lag the first one.");
+    else if (low) parts.push("Pin sits <b>low</b> — uphill putt, be firm and take the break out.");
+    else parts.push("Pin's on a <b>flatter section</b> — a makeable look if you're on the right tier.");
+  }
+  if (back) parts.push("Back pin: take one more club, don't short-side yourself.");
+  else if (front) parts.push("Front pin: land it soft — long leaves a downhill comeback.");
+  parts.push("Blue ring = the fat-side target; play there, not at the flag.");
+  return parts.join(" ");
+}
+function strategyFor(h){
+  const intel = HOLE_INTEL[h.n] || {}, slope = GREEN_SLOPES[h.n], secs = [];
+  const sec = (label, body) => secs.push(`<div class="stratsec"><div class="stratlbl">${label}</div>${body}</div>`);
+  if (intel.tee) sec("How to play it", `<div class="stratrow">${intel.tee}</div>`);
+  if (intel.avoid) sec("Where the strokes go", `<div class="stratrow warn">${intel.avoid}</div>`);
+  if (intel.note) sec("The call", `<div class="stratrow">${intel.note}</div>`);
+  if (slope) sec("The green", `<div class="stratrow">High side: <b>${slope.high}</b> &middot; low side: <b>${slope.low}</b>. Everything feeds toward the low side.</div>`);
+  const tip = pinAdvice(h.n);
+  sec("Today's pin", `<div class="stratrow">${tip || "Drop the pin on the GREEN tab for a putt read here."}</div>`);
+  return `<div class="strat">${secs.join("")}</div>`;
+}
+
 /* ---------- rendering ---------- */
 const $ = s => document.querySelector(s);
 function scoreClass(g, par){
@@ -413,6 +504,7 @@ function statTotals(pid){
 function bookBody(){
   const meta = BOOK[hole];
   if (!meta) return "";
+  if (bookView === "strat") return strategyFor(HOLES[hole-1]);
   if (bookView === "stats"){
     const par3 = HOLES[hole-1].par === 3;
     const hs = stats[hole] || {};
@@ -453,10 +545,12 @@ function bookBody(){
     const hint = p
       ? `<span class="pinlgnd">Flag</span> = today's pin (synced to the group) &middot; <span class="tgtlgnd">blue ring</span> = suggested target, fat side<br>Tap the green to move the pin`
       : `<b>Tap the green to drop today's pin</b><br><i>it syncs to everyone's phone</i>`;
+    const tip = p ? `<div class="pintip">${pinAdvice(hole)}</div>` : "";
     return `<div class="bookframe greentap" data-role="greentap">
         <img class="bookimg" src="${meta.green}" alt="Green map, hole ${hole}" draggable="false">
         ${pinSvg}${tgtDiv}
       </div>
+      ${tip}
       <div class="bookhint">${hint}</div>
       ${p ? `<button class="pinclear" data-act="pinclear">Clear pin</button>` : ""}`;
   }
@@ -518,6 +612,7 @@ function viewScore(game){
       <button class="bookseg ${bookView==="hole"?"on":""}" data-view="hole">Hole</button>
       <button class="bookseg ${bookView==="green"?"on":""}" data-view="green">Green${pinBadge(hole)}</button>
       <button class="bookseg ${bookView==="pins"?"on":""}" data-view="pins">Pins</button>
+      <button class="bookseg ${bookView==="strat"?"on":""}" data-view="strat">Strategy</button>
       <button class="bookseg ${bookView==="stats"?"on":""}" data-view="stats">Stats</button>
       <button class="bookzoombtn" data-act="zoom" aria-label="expand">&#x2922;</button>
     </div>
@@ -642,6 +737,10 @@ document.querySelectorAll(".tab").forEach(b=>{
 
 /* ---------- boot ---------- */
 lsLoad();
+/* preload green heatmaps so the pin read works on any tab, not just Green */
+for (let hn = 1; hn <= 18; hn++){
+  if (BOOK[hn]){ const im = new Image(); im.src = BOOK[hn].green; _greenImgCache["_img_"+hn] = im; }
+}
 const firstOpen = HOLES.find(h=>!PLAYERS.every(p=>scores[h.n]?.[p.id]!=null));
 hole = firstOpen ? firstOpen.n : 18;
 render();
