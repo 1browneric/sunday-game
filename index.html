@@ -130,6 +130,9 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .pintip{font-family:'Barlow',sans-serif;font-size:12.5px;color:#22301F;line-height:1.5;
   background:#EDE6D0;border-left:3px solid var(--gold-deep);border-radius:8px;padding:9px 11px;margin-top:9px}
 .pintip b{color:#17402A}
+.statsblock{margin-top:14px}
+.statshdr{padding:13px 16px 11px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:#17402A;font-weight:700;border-bottom:1px solid rgba(34,48,31,.15);background:#EDE6D0;border-radius:16px 16px 0 0}
 
 /* fullscreen zoom overlay */
 .zoom{position:fixed;inset:0;z-index:50;background:rgba(10,24,16,.97);display:flex;flex-direction:column;
@@ -376,24 +379,24 @@ function targetFor(holeN){
 /* ---------- tour-caddie intel + live pin read ---------- */
 /* Sunflower Hills tour-caddie intel, read off the Par The Course books */
 const HOLE_INTEL = {
-  1:{tee:"PTC plan: Driver, ~140 in.", avoid:"Bunkers scatter right off the tee; water sits short-left of the green.", note:"Miss right of the green, never long-left. Green runs off the front."},
-  2:{tee:"Driver then a wedge — reachable in two only if you flush it.", avoid:"Bunkers both sides; water long-left of the green.", note:"Big green tilts hard back-right to left — stay below the shelf."},
-  3:{tee:"Driver, ~138 in.", avoid:"Bunker complex right; water off the tee bottom-left.", note:"Center green — the front-left is the low side."},
-  4:{tee:"One club, PTC: 9i. Par 3.", avoid:"Water runs the ENTIRE right side. Bunkers left are the safe miss.", note:"Miss left, never right. Green sits above its front."},
-  5:{tee:"Short par 4, downwind — Driver then wedge (~76 in).", avoid:"Fairway bunkers pinch the landing.", note:"Aggressive line rewarded, but commit — small green, favor low front-left."},
-  6:{tee:"HCP 1, the hardest hole. Three-shot it: Driver, 9i, 56.", avoid:"Bunkers everywhere both sides; water long-left. Take your medicine.", note:"Par is a win here — don't force the second."},
-  7:{tee:"Mini Driver off the tee, NOT Driver — too tight for the big stick.", avoid:"Bunkers pinch both sides of the landing zone.", note:"Position over power; 9i in from the short grass."},
-  8:{tee:"Long par 3, PTC: 6i (~196).", avoid:"Bunkers left and right; sand short-right is the worst miss.", note:"Center of the green — anywhere but short-right."},
-  9:{tee:"Short par 4 — LAY BACK. Driver brings the trouble in.", avoid:"Bunkers pinch the driver landing zone.", note:"Iron off the tee then a wedge takes the big number out of play."},
-  10:{tee:"Easiest hole (HCP 18) — Driver then a wedge (~46 in).", avoid:"Water right near the green; bunker left.", note:"Attack. Pin sits up back-left — be below it."},
-  11:{tee:"Driver, mid-iron in (~161).", avoid:"Scattered bunkers; sand/water bottom-left.", note:"Straightaway — take on the second from the fairway."},
-  12:{tee:"Driver, wedge in (~123).", avoid:"Long and straight, bunkers both sides.", note:"The fairway is the whole game — center green."},
-  13:{tee:"Par 3 over water, PTC: 9i (~162). CARRY IT.", avoid:"Pond short and left — short is wet.", note:"Take enough club; miss long, never short."},
-  14:{tee:"Driver, wedge in (~135).", avoid:"Water down the ENTIRE left side. Miss right.", note:"Green sits tight to the water — bail right of the flag."},
-  15:{tee:"HCP 2, long par 4. Driver + iron, or lay it up.", avoid:"Water bottom-left; bunkers guard the fairway.", note:"Long hole — bogey is fine; play the fat side."},
-  16:{tee:"Long par 3, PTC: 7i (~195).", avoid:"Water all down the right; bunkers left, sand short-right.", note:"Miss left, never right. Big club, smooth swing."},
-  17:{tee:"Par 5 — position off the tee, then pick your spot.", avoid:"Water left of the landing and crossing; bunkers.", note:"Find the fairway — the green gives up birdies."},
-  18:{tee:"Short finish — Driver then a wedge (~62 in).", avoid:"Pond guards the left-front of the green; bunkers right.", note:"Favor the right side, wedge in — don't flirt with the water."}
+  1:{tee:"Driver ~282 up the left-center leaves about 140 in — a stock 9i. Lay-up marker sits at 155 if you're not hitting driver.", avoid:"Bunkers scatter right off the tee; water sits short-left of the green.", note:"Miss right of the green, never long-left. Green runs off the front."},
+  2:{tee:"Reachable if you flush it: driver ~302 leaves 159, a 9i second. Laying up? Leave a full wedge, not an awkward 40.", avoid:"Bunkers both sides; water long-left of the green.", note:"Big green tilts hard back-right to left — stay below the shelf."},
+  3:{tee:"Driver ~276 leaves 138 in, a 9i. Straightaway — no reason to hold back off the tee.", avoid:"Bunker complex right; water off the tee bottom-left.", note:"Center green — the front-left is the low side."},
+  4:{tee:"One-club par 3 — 9i, 156 to the middle. Enough club to reach center and let it release.", avoid:"Water runs the ENTIRE right side. Bunkers left are the safe miss.", note:"Miss left, never right. Green sits above its front."},
+  5:{tee:"Short and downwind — driver ~266 leaves just 76, a 56° in. Aggressive off the tee is the play; you're wedging your second.", avoid:"Fairway bunkers pinch the landing.", note:"Commit to the wedge — small green, favor the low front-left."},
+  6:{tee:"The three-shot hole (HCP 1): driver ~294, then 9i to ~162 out, then a 56° from 90. Position, position, wedge.", avoid:"Bunkers everywhere both sides; water long-left. Take your medicine.", note:"Par is a win here — don't force the second."},
+  7:{tee:"Mini-driver, not driver — Md ~243 leaves 143, a 9i in. The big stick (279) runs through the tight landing zone.", avoid:"Bunkers pinch both sides of the landing zone.", note:"Position over power; a 9i from the short grass is plenty."},
+  8:{tee:"Long par 3 — 6i, 196 to the middle. Big club, smooth swing, aim center.", avoid:"Bunkers left and right; sand short-right is the worst miss.", note:"Center of the green — anywhere but short-right."},
+  9:{tee:"Lay back: a 4i (~239) leaves 85 and a 56° in. Driver just brings the bunkers in for no gain — the wedge is where you score.", avoid:"Bunkers pinch the driver landing zone.", note:"Take the big number out of play off the tee, then attack with the wedge."},
+  10:{tee:"Easiest hole on the card (HCP 18): bomb driver ~309, leaving just 46 and a 56°. Green-light off the tee.", avoid:"Water right near the green; bunker left.", note:"Attack. Pin sits up back-left — be below it."},
+  11:{tee:"Driver ~312 leaves 161, an 8i in. Straightaway par 5 — take on the second from the fairway.", avoid:"Scattered bunkers; sand/water bottom-left.", note:"Fairway off the tee, then it's a mid-iron you can go at."},
+  12:{tee:"Driver ~292 leaves 123, an Aw in. Long and straight — just find the short grass.", avoid:"Long and straight, bunkers both sides.", note:"The fairway is the whole game — center green."},
+  13:{tee:"All-carry par 3 over water — 9i, 162 to the middle. Take enough club; short is wet.", avoid:"Pond short and left — short is wet.", note:"Take enough club; miss long, never short."},
+  14:{tee:"Driver ~268 leaves 135, a 9i in. Favor the right half off the tee to stay off the water down the left.", avoid:"Water down the ENTIRE left side. Miss right.", note:"Green sits tight to the water — bail right of the flag."},
+  15:{tee:"Play the beast (HCP 2) as a three-shot: 7w ~218, then 8i to ~166 out, then a 56° from 80. Flush driver (279→161) if you want a 7i at it.", avoid:"Water bottom-left; bunkers guard the fairway.", note:"Long hole — bogey is fine; play the fat side."},
+  16:{tee:"Long par 3 — 7i, 195 to the middle. Big club, smooth swing, aim center-left.", avoid:"Water all down the right; bunkers left, sand short-right.", note:"Miss left, never right."},
+  17:{tee:"Three-shot par 5 (HCP 6): driver ~269, then 4i to ~203 out, then a 56° from 80. Mini-driver off the tee if the water's in your head.", avoid:"Water left of the landing and crossing; bunkers.", note:"Find the fairway — the green gives up birdies."},
+  18:{tee:"Short finish — driver ~275 leaves only 62, a 56° in. Just a wedge to close it out.", avoid:"Pond guards the left-front of the green; bunkers right.", note:"Favor the right side, wedge in — don't flirt with the water."}
 };
 const GREEN_SLOPES = {"1":{"high":"back","low":"front"},"2":{"high":"back right","low":"left"},"3":{"high":"back","low":"front left"},"4":{"high":"back left","low":"front"},"5":{"high":"back right","low":"front left"},"6":{"high":"back left","low":"mid"},"7":{"high":"back left","low":"right"},"8":{"high":"back","low":"front"},"9":{"high":"back","low":"front"},"10":{"high":"back","low":"front"},"11":{"high":"back","low":"front"},"12":{"high":"back","low":"front"},"13":{"high":"back","low":"front right"},"14":{"high":"back","low":"front"},"15":{"high":"back","low":"front"},"16":{"high":"back","low":"front right"},"17":{"high":"back","low":"front"},"18":{"high":"back","low":"front"}};
 
@@ -501,39 +504,43 @@ function statTotals(pid){
 }
 
 /* the book panel body for the current hole + view (shared by inline and zoom) */
+/* standalone stats section — lives at the bottom of the Score view, not in the book tabs */
+function statsSection(){
+  const par3 = HOLES[hole-1].par === 3;
+  const hs = stats[hole] || {};
+  const rows = PLAYERS.map(p=>{
+    const d = hs[p.id] || {};
+    const chip = (key, label) => {
+      const v = d[key];
+      const cls = v===1 ? " on" : v===0 ? " off" : "";
+      return `<button class="stchip${cls}" data-act="sttog" data-pid="${p.id}" data-key="${key}">${label}</button>`;
+    };
+    const count = (key, label) => `
+      <div class="stcount"><span>${label}</span>
+        <button class="stmini" data-act="stdec" data-pid="${p.id}" data-key="${key}" aria-label="fewer ${label} ${p.name}">&minus;</button>
+        <b>${d[key] ?? "&mdash;"}</b>
+        <button class="stmini" data-act="stinc" data-pid="${p.id}" data-key="${key}" aria-label="more ${label} ${p.name}">+</button>
+      </div>`;
+    const tot = statTotals(p.id);
+    return `<div class="strow">
+      <div class="sttop">
+        <div class="stname">${p.name}</div>
+        <div class="stchips">${chip("tee","Tee")}${par3?"":chip("fw","FW")}${chip("gir","GIR")}</div>
+      </div>
+      <div class="stbottom">${count("putts","Putts")}${count("pen","Pen")}</div>
+      ${tot ? `<div class="sttot">${tot}</div>` : ""}
+    </div>`;
+  }).join("");
+  return `<section class="book statsblock">
+    <div class="statshdr">Stats &middot; No. ${hole}</div>
+    <div class="bookbody">${rows}</div>
+  </section>`;
+}
+
 function bookBody(){
   const meta = BOOK[hole];
   if (!meta) return "";
   if (bookView === "strat") return strategyFor(HOLES[hole-1]);
-  if (bookView === "stats"){
-    const par3 = HOLES[hole-1].par === 3;
-    const hs = stats[hole] || {};
-    const rows = PLAYERS.map(p=>{
-      const d = hs[p.id] || {};
-      const chip = (key, label) => {
-        const v = d[key];
-        const cls = v===1 ? " on" : v===0 ? " off" : "";
-        return `<button class="stchip${cls}" data-act="sttog" data-pid="${p.id}" data-key="${key}">${label}</button>`;
-      };
-      const count = (key, label) => `
-        <div class="stcount"><span>${label}</span>
-          <button class="stmini" data-act="stdec" data-pid="${p.id}" data-key="${key}" aria-label="fewer ${label} ${p.name}">&minus;</button>
-          <b>${d[key] ?? "&mdash;"}</b>
-          <button class="stmini" data-act="stinc" data-pid="${p.id}" data-key="${key}" aria-label="more ${label} ${p.name}">+</button>
-        </div>`;
-      const tot = statTotals(p.id);
-      return `<div class="strow">
-        <div class="sttop">
-          <div class="stname">${p.name}</div>
-          <div class="stchips">${chip("tee","Tee")}${par3?"":chip("fw","FW")}${chip("gir","GIR")}</div>
-        </div>
-        <div class="stbottom">${count("putts","Putts")}${count("pen","Pen")}</div>
-        ${tot ? `<div class="sttot">${tot}</div>` : ""}
-      </div>`;
-    }).join("");
-    return `${rows}
-      <div class="bookhint">Tap a stat once for yes, again for no &middot; syncs like scores</div>`;
-  }
   if (bookView === "green"){
     const p = pins[hole], t = targetFor(hole);
     const pinSvg = p ? `<svg class="pinmark" style="left:${p.x*100}%;top:${p.y*100}%" viewBox="0 0 26 34">
@@ -610,14 +617,14 @@ function viewScore(game){
   <section class="book">
     <div class="bookbar">
       <button class="bookseg ${bookView==="hole"?"on":""}" data-view="hole">Hole</button>
+      <button class="bookseg ${bookView==="strat"?"on":""}" data-view="strat">Strategy</button>
       <button class="bookseg ${bookView==="green"?"on":""}" data-view="green">Green${pinBadge(hole)}</button>
       <button class="bookseg ${bookView==="pins"?"on":""}" data-view="pins">Pins</button>
-      <button class="bookseg ${bookView==="strat"?"on":""}" data-view="strat">Strategy</button>
-      <button class="bookseg ${bookView==="stats"?"on":""}" data-view="stats">Stats</button>
       <button class="bookzoombtn" data-act="zoom" aria-label="expand">&#x2922;</button>
     </div>
     <div class="bookbody">${bookBody()}</div>
   </section>
+  ${statsSection()}
   <div class="holenav">
     <button class="navbtn" data-act="prev" ${hole===1?"disabled":""}>Prev</button>
     <button class="navbtn" data-act="next" ${hole===18?"disabled":""}>Next hole</button>
@@ -665,7 +672,7 @@ function viewPoints(game){
 }
 
 function viewCard(game){
-  const head = PLAYERS.map(p=>`<th>${p.name.slice(0,4)}</th>`).join("");
+  const head = PLAYERS.map(p=>`<th>${p.name}</th>`).join("");
   const body = HOLES.map(h=>{
     const r = game.holeResults[h.n];
     const cells = PLAYERS.map(p=>{
