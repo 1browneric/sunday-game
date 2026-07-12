@@ -77,10 +77,15 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .stepbtn:active{transform:scale(.95)}
 .gross{width:52px;text-align:center;font-family:var(--mono);font-weight:700;font-size:26px;color:#22301F}
 .gross.blank{color:#9AA292}.gross.birdie{color:#B37F06}.gross.over{color:#B0432E}
-.holenav{display:flex;gap:10px;margin-top:14px}
-.navbtn{flex:1;padding:14px 0;border-radius:12px;background:var(--fair2);color:var(--cream);
-  font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;border:1px solid var(--line)}
-.navbtn:disabled{opacity:.35}
+.holenav{display:flex;align-items:center;gap:10px}
+.holenav.top{margin-bottom:12px}
+.holenav.bottom{margin-top:16px}
+.holenav .navbtn{flex:1;padding:13px 0;border-radius:11px;background:var(--fair2);color:var(--cream);
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  border:1px solid var(--line);text-align:center}
+.holenav .navbtn.dis{opacity:.4}
+.navnow{flex:none;font-family:'Graduate',serif;font-weight:700;font-size:17px;color:var(--gold);
+  min-width:60px;text-align:center}
 .resline{margin-top:12px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--sage);min-height:18px}
 .resline b{color:var(--gold)}
 
@@ -578,6 +583,16 @@ function bookBody(){
     </div>${hint}`;
 }
 
+function holeNav(pos, h){
+  const prev = hole > 1
+    ? `<button class="navbtn" data-act="prev">&larr; No. ${hole-1}</button>`
+    : `<span class="navbtn dis">Front</span>`;
+  const next = hole < 18
+    ? `<button class="navbtn" data-act="next">No. ${hole+1} &rarr;</button>`
+    : `<span class="navbtn dis">Home</span>`;
+  return `<div class="holenav ${pos}">${prev}<div class="navnow">No. ${h.n}</div>${next}</div>`;
+}
+
 function viewScore(game){
   const h = HOLES[hole-1];
   const hs = scores[hole] || {};
@@ -607,6 +622,7 @@ function viewScore(game){
     ? ` plus <b>${game.pot}</b> carried` : "";
   const pinBadge = n => pins[n] ? " &middot;" : "";
   return `
+  ${holeNav("top", h)}
   <div class="pot">
     <div class="coin">${riding}</div>
     <div>
@@ -634,10 +650,7 @@ function viewScore(game){
     <div class="bookbody">${bookBody()}</div>
   </section>
   ${statsSection()}
-  <div class="holenav">
-    <button class="navbtn" data-act="prev" ${hole===1?"disabled":""}>Prev</button>
-    <button class="navbtn" data-act="next" ${hole===18?"disabled":""}>Next hole</button>
-  </div>`;
+  ${holeNav("bottom", h)}`;
 }
 
 function viewZoom(){
